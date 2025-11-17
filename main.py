@@ -206,7 +206,7 @@ while True:
 
     if zero_loot_count >= 7:
         print(f"[!{RUN_TAG}] 15 consecutive zero loot results. Performing recovery taps...")
-        for coords in [(800, 850), (97, 900), (250, 700)]:
+        for coords in [(800, 850), (97, 900), (250, 700), (1363, 821)]:
             tap(*coords); sleep(2)
         continue
 
