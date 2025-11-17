@@ -34,7 +34,7 @@ def human_delay(min_s=0.15, max_s=0.4):
 
 # ========= CONFIG =========
 POST_ATTACK_WAIT = 60
-POST_ATTACK_TAPS = [(800, 850), (97, 900), (250, 700)]
+POST_ATTACK_TAPS = [(800, 850), (97, 900), (250, 700), (1363, 821)]
 
 GOLD_THRESHOLD = 800000
 ELIXIR_THRESHOLD = 800000
