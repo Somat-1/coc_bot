@@ -26,3 +26,4 @@ debug_*.png
 
 # Keep empty folders if needed
 !*/.gitkeep
+logs/
