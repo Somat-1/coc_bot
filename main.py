@@ -56,7 +56,7 @@ def draw_full_debug_overlay(image_path=SCREEN_PATH, output_path=DEBUG_OVERLAY_PA
     if img is None:
         print("[-] Failed to load screenshot for overlay.")
         return
-
+    
     boxes = {
         "Gold":   (65, 113, 205, 142),
         "Elixir": (65, 158, 205, 185),
@@ -64,10 +64,10 @@ def draw_full_debug_overlay(image_path=SCREEN_PATH, output_path=DEBUG_OVERLAY_PA
     }
     for label, (x1, y1, x2, y2) in boxes.items():
         cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(img, label, (x1, y1 - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+        cv2.putText(img, label, (x1, y1 - 5),                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
-    troop_coords = [(220 + i * 100, 930) for i in range(10)]
+    # Updated troop coordinates - 8 troops after removing event troops
+    troop_coords = [(220 + i * 118, 910) for i in range(8)]
     for i, (x, y) in enumerate(troop_coords):
         cv2.circle(img, (x, y), 12, (255, 0, 0), 2)
         cv2.putText(img, f"T{i+1}", (x - 20, y - 10),
@@ -131,38 +131,97 @@ def extract_loot_values(image_path):
 # ========= TROOP DEPLOYMENT =========
 def deploy_troops():
     print(f"[*-{RUN_TAG}] Deploying troops...")
-    troop_icons = [(220 + i * 100, 930) for i in range(10)]
-    deploy_1 = (1526, 450)
-    deploy_2 = (180, 480)
+    # Troop positions after removing event troops (Troops 3 & 4)
+    # Now only 8 troops: Balloon, Dragons, Siege, 4 Heroes, Spells
+    # Using 118px spacing and y=910
+    troop_icons = [(220 + i * 118, 910) for i in range(8)]
+    deploy_1 = (1526, 450)  # Dragon/primary deployment location
+    deploy_2 = (180, 480)   # Secondary deployment location
+    
+    # DEBUG: Show all troop icon positions
+    print(f"[DEBUG-{RUN_TAG}] === TROOP ICON POSITIONS ===")
+    for i, coords in enumerate(troop_icons):
+        troop_type = "REGULAR"
+        if i == 2:
+            troop_type = "SIEGE"
+        elif i >= 3 and i <= 6:
+            troop_type = f"HERO {i-2}"
+        elif i == 7:
+            troop_type = "SPELLS"
+        print(f"[DEBUG-{RUN_TAG}] Troop {i+1} (index {i}): {coords} - {troop_type}")
+    print(f"[DEBUG-{RUN_TAG}] Deploy point 1 (dragon): {deploy_1}")
+    print(f"[DEBUG-{RUN_TAG}] Deploy point 2 (secondary): {deploy_2}")
+    print(f"[DEBUG-{RUN_TAG}] ===========================")
+    
+    # STEP 1: Deploy Troop 1 - Balloon (1 time at dragon location)
+    print(f"[*-{RUN_TAG}] Step 1: Deploying Troop 1 (Balloon) once...")
+    tap(*troop_icons[0]); human_delay()  # Select Troop 1 (index 0)
+    tap(*random_point(deploy_1, 5)); human_delay(0.3, 0.6)
+    
+    # STEP 2: Deploy Troop 2 - Dragons (with hold at dragon location)
+    print(f"[*-{RUN_TAG}] Step 2: Deploying Troop 2 (Dragons with hold)...")
+    tap(*troop_icons[1]); human_delay()  # Select Troop 2 (index 1)
+    tap_and_hold(*random_point(deploy_1, 5), duration_ms=2500); human_delay(0.5, 1)
+    
+    # STEP 3: Deploy Siege Machine (Troop 3) - ONCE at dragon location (NOT a hero)
+    print(f"[*-{RUN_TAG}] Step 3: Deploying Siege Machine (Troop 3) once...")
+    siege_coords = troop_icons[2]
+    print(f"[DEBUG-{RUN_TAG}] Tapping Siege Machine icon at {siege_coords}")
+    tap(*siege_coords); human_delay()  # Select Troop 3 - Siege Machine (index 2)
+    deploy_point = random_point(deploy_1, 5)
+    print(f"[DEBUG-{RUN_TAG}] Deploying Siege Machine at {deploy_point}")
+    tap(*deploy_point)  # Deploy once
+    print(f"[DEBUG-{RUN_TAG}] Siege Machine deployed. Waiting brief delay...")
+    human_delay(0.5, 0.8)  # Brief delay after siege
+    print(f"[DEBUG-{RUN_TAG}] Siege Machine step complete. Moving to heroes...")
+    
+    # STEP 4: Deploy ALL 4 HEROES (Troops 4-7, indices 3-6)
+    # Hero 1 (index 3): Deploy at dragon location (deploy_1), wait 4s, activate ability
+    print(f"[*-{RUN_TAG}] Step 4: Deploying Hero 1 (Troop 4 at index 3) at dragon location...")
+    hero1_coords = troop_icons[3]
+    print(f"[DEBUG-{RUN_TAG}] Hero 1 icon position: {hero1_coords}")
+    tap(*hero1_coords); human_delay()  # Select Hero 1 (index 3)
+    deploy_point = random_point(deploy_1, 5)
+    print(f"[DEBUG-{RUN_TAG}] Deploying Hero 1 at {deploy_point}")
+    tap(*deploy_point)  # Deploy at dragon location
+    print(f"[*-{RUN_TAG}] Waiting 4s before activating Hero 1 ability...")
+    sleep(4)  # Wait 4 seconds
+    print(f"[DEBUG-{RUN_TAG}] Tapping Hero 1 icon again at {hero1_coords} to activate ability...")
+    tap(*hero1_coords); human_delay(0.9, 1.4)  # Activate ability
+    print(f"[*-{RUN_TAG}] Hero 1 deployed and ability activated!")
+    
+    # STEP 5: Deploy Heroes 2-4 (Troops 5-7, indices 4-6) at secondary location
+    # Each hero: deploy at deploy_2, wait 1s, activate ability
+    print(f"[*-{RUN_TAG}] Step 5: Deploying Heroes 2-4 at secondary location...")
+    for hero_offset in range(3):  # Loop 3 times for Heroes 2, 3, 4
+        hero_index = 4 + hero_offset  # indices: 4, 5, 6
+        hero_num = hero_offset + 2  # Hero numbers: 2, 3, 4
+        hero_coords = troop_icons[hero_index]
+        expected_x = 220 + hero_index * 118
+        print(f"[*-{RUN_TAG}] Deploying Hero {hero_num} (Troop {hero_index + 1} at index {hero_index})...")
+        print(f"[DEBUG-{RUN_TAG}] Hero {hero_num} icon at {hero_coords} (expected x={expected_x})")
+        
+        tap(*hero_coords); human_delay()  # Select hero
+        deploy_point = random_point(deploy_2, 5)
+        print(f"[DEBUG-{RUN_TAG}] Deploying Hero {hero_num} at {deploy_point}")
+        tap(*deploy_point)  # Deploy at secondary location
+        print(f"[*-{RUN_TAG}] Waiting 1s before activating Hero {hero_num} ability...")
+        sleep(1)  # Wait 1 second
+        print(f"[DEBUG-{RUN_TAG}] Tapping Hero {hero_num} icon at {hero_coords} to activate ability...")
+        tap(*hero_coords); human_delay(0.3, 0.5)  # Activate ability
+        print(f"[*-{RUN_TAG}] Hero {hero_num} deployed and ability activated!")
+    
+    # STEP 6: Deploy Spells (Troop 8)
+    print(f"[*-{RUN_TAG}] Step 6: Deploying Spells (Troop 8)...")
+    tap(*troop_icons[7]); human_delay()  # Select Troop 8 (index 7)
+    spell_locations = [(900, 350), (700, 480), (900, 600), (830, 480), (900, 480)]
+    for i, loc in enumerate(spell_locations, 1):
+        print(f"[*-{RUN_TAG}] Deploying spell {i}/5 at {loc}...")
+        tap(*random_point(loc, 15))
+        human_delay(0.2, 0.4)
+    print(f"[*-{RUN_TAG}] All spells deployed!")
 
-    tap(*troop_icons[0]); human_delay(); tap(*random_point(random.choice([deploy_1, deploy_2]), 5)); human_delay(0.3, 0.6)
-    tap(*troop_icons[1]); human_delay(); tap_and_hold(*random_point(deploy_1, 5), duration_ms=2500); human_delay(0.5, 1)
-    tap(*troop_icons[2]); human_delay(); tap(*random_point(deploy_1, 5)); human_delay(0.5, 1)
-
-    if HERO_COUNT > 0:
-        first_hero_index = 3
-        tap(*troop_icons[first_hero_index]); human_delay(); tap(*random_point(deploy_1, 5))
-        sleep(4)
-        tap(*troop_icons[first_hero_index]); human_delay(0.9, 1.4)
-
-        for i in range(1, HERO_COUNT):
-            hero_index = first_hero_index + i
-            if hero_index < len(troop_icons):
-                tap(*troop_icons[hero_index]); human_delay()
-                tap(*random_point(deploy_2, 5)); human_delay()
-                tap(*random_point(deploy_2, 5)); human_delay(0.3, 0.5)
-
-    print(f"[*-{RUN_TAG}] Deploying spells...")
-    first_hero_index = 3
-    last_hero_index = first_hero_index + HERO_COUNT - 1
-    spell_start_index = last_hero_index + 1
-
-    if spell_start_index < len(troop_icons):
-        tap(*troop_icons[spell_start_index]); human_delay()
-        for loc in [(900, 350), (700, 480), (900, 600), (830, 480), (900, 480)]:
-            tap(*random_point(loc, 15)); human_delay(0.2, 0.4)
-
-    print(f"[+{RUN_TAG}] Troops deployed.")
+    print(f"[+{RUN_TAG}] All troops deployed successfully!")
 
 # ========= MAIN LOOP =========
 start_time = time.time()

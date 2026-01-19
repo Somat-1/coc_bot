@@ -182,10 +182,10 @@ def draw_full_debug_overlay(image_path=SCREEN_PATH, output_path=DEBUG_OVERLAY_PA
     }
     for label, (x1, y1, x2, y2) in boxes.items():
         cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(img, label, (x1, y1 - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+        cv2.putText(img, label, (x1, y1 - 5),                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
-    troop_coords = [(220 + i * 100, 930) for i in range(10)]
+    # Updated troop coordinates to match actual game positions (118px spacing, y=910)
+    troop_coords = [(220 + i * 118, 910) for i in range(10)]
     for i, (x, y) in enumerate(troop_coords):
         cv2.circle(img, (x, y), 12, (255, 0, 0), 2)
         cv2.putText(img, f"T{i+1}", (x - 20, y - 10),
@@ -249,45 +249,70 @@ def extract_loot_values(image_path):
 # ========= TROOP DEPLOYMENT =========
 def deploy_troops():
     print(f"[*-{RUN_TAG}] Deploying troops...")
-    troop_icons = [(220 + i * 100, 930) for i in range(10)]
-    deploy_1 = (1526, 450)
-    deploy_2 = (180, 480)
-
-    tap(*troop_icons[0]); human_delay(); tap(*random_point(random.choice([deploy_1, deploy_2]), 5)); human_delay(0.3, 0.6)
+    # Troop positions after removing event troops (Troops 3 & 4)
+    # Now only 8 troops: Balloon, Dragons, Siege, 4 Heroes, Spells
+    # Using 118px spacing and y=910
+    troop_icons = [(220 + i * 118, 910) for i in range(8)]
+    deploy_1 = (1526, 450)  # Dragon/primary deployment location
+    deploy_2 = (180, 480)   # Secondary deployment location
+    
+    # STEP 1: Deploy Troop 1 - Balloon (1 time at dragon location)
+    print(f"[*-{RUN_TAG}] Step 1: Deploying Troop 1 (Balloon) once...")
+    tap(*troop_icons[0]); human_delay()  # Select Troop 1 (index 0)
+    tap(*random_point(deploy_1, 5)); human_delay(0.3, 0.6)
     if maybe_handle_user_input(): raise RestartLoop
-
-    tap(*troop_icons[1]); human_delay(); tap_and_hold(*random_point(deploy_1, 5), duration_ms=2500); human_delay(0.5, 1)
+    
+    # STEP 2: Deploy Troop 2 - Dragons (with hold at dragon location)
+    print(f"[*-{RUN_TAG}] Step 2: Deploying Troop 2 (Dragons with hold)...")
+    tap(*troop_icons[1]); human_delay()  # Select Troop 2 (index 1)
+    tap_and_hold(*random_point(deploy_1, 5), duration_ms=2500); human_delay(0.5, 1)
     if maybe_handle_user_input(): raise RestartLoop
-
-    tap(*troop_icons[2]); human_delay(); tap(*random_point(deploy_1, 5)); human_delay(0.5, 1)
+    
+    # STEP 3: Deploy Siege Machine (Troop 3) - ONCE at dragon location (NOT a hero)
+    print(f"[*-{RUN_TAG}] Step 3: Deploying Siege Machine (Troop 3) once...")
+    tap(*troop_icons[2]); human_delay()  # Select Troop 3 - Siege Machine (index 2)
+    tap(*random_point(deploy_1, 5))  # Deploy once
+    human_delay(0.5, 0.8)  # Brief delay after siege
     if maybe_handle_user_input(): raise RestartLoop
-
-    if HERO_COUNT > 0:
-        first_hero_index = 3
-        tap(*troop_icons[first_hero_index]); human_delay(); tap(*random_point(deploy_1, 5))
-        if sleep_interruptible(4): raise RestartLoop
-        tap(*troop_icons[first_hero_index]); human_delay(0.9, 1.4)
-
-        for i in range(1, HERO_COUNT):
-            hero_index = first_hero_index + i
-            if hero_index < len(troop_icons):
-                tap(*troop_icons[hero_index]); human_delay()
-                tap(*random_point(deploy_2, 5)); human_delay()
-                tap(*random_point(deploy_2, 5)); human_delay(0.3, 0.5)
-                if maybe_handle_user_input(): raise RestartLoop
-
-    print(f"[*-{RUN_TAG}] Deploying spells...")
-    first_hero_index = 3
-    last_hero_index = first_hero_index + HERO_COUNT - 1
-    spell_start_index = last_hero_index + 1
-
-    if spell_start_index < len(troop_icons):
-        tap(*troop_icons[spell_start_index]); human_delay()
-        for loc in [(900, 350), (700, 480), (900, 600), (830, 480), (900, 480)]:
-            tap(*random_point(loc, 15)); human_delay(0.2, 0.4)
-            if maybe_handle_user_input(): raise RestartLoop
-
-    print(f"[+{RUN_TAG}] Troops deployed.")
+    
+    # STEP 4: Deploy ALL 4 HEROES (Troops 4-7, indices 3-6)
+    # Hero 1 (index 3): Deploy at dragon location (deploy_1), wait 4s, activate ability
+    print(f"[*-{RUN_TAG}] Step 4: Deploying Hero 1 (Troop 4 at index 3) at dragon location...")
+    tap(*troop_icons[3]); human_delay()  # Select Hero 1 (index 3)
+    tap(*random_point(deploy_1, 5))  # Deploy at dragon location
+    print(f"[*-{RUN_TAG}] Waiting 4s before activating Hero 1 ability...")
+    if sleep_interruptible(4): raise RestartLoop  # Wait 4 seconds
+    tap(*troop_icons[3]); human_delay(0.9, 1.4)  # Activate ability
+    print(f"[*-{RUN_TAG}] Hero 1 deployed and ability activated!")
+    if maybe_handle_user_input(): raise RestartLoop
+    
+    # STEP 5: Deploy Heroes 2-4 (Troops 5-7, indices 4-6) at secondary location
+    # Each hero: deploy at deploy_2, wait 1s, activate ability
+    print(f"[*-{RUN_TAG}] Step 5: Deploying Heroes 2-4 at secondary location...")
+    for hero_offset in range(3):  # Loop 3 times for Heroes 2, 3, 4
+        hero_index = 4 + hero_offset  # indices: 4, 5, 6
+        hero_num = hero_offset + 2  # Hero numbers: 2, 3, 4
+        print(f"[*-{RUN_TAG}] Deploying Hero {hero_num} (Troop {hero_index + 1} at index {hero_index})...")
+        
+        tap(*troop_icons[hero_index]); human_delay()  # Select hero
+        tap(*random_point(deploy_2, 5))  # Deploy at secondary location
+        print(f"[*-{RUN_TAG}] Waiting 1s before activating Hero {hero_num} ability...")
+        if sleep_interruptible(1): raise RestartLoop  # Wait 1 second
+        tap(*troop_icons[hero_index]); human_delay(0.3, 0.5)  # Activate ability
+        print(f"[*-{RUN_TAG}] Hero {hero_num} deployed and ability activated!")
+        if maybe_handle_user_input(): raise RestartLoop
+      # STEP 6: Deploy Spells (Troop 8)
+    print(f"[*-{RUN_TAG}] Step 6: Deploying Spells (Troop 8)...")
+    tap(*troop_icons[7]); human_delay()  # Select Troop 8 (index 7)
+    spell_locations = [(900, 350), (700, 480), (900, 600), (830, 480), (900, 480)]
+    for i, loc in enumerate(spell_locations, 1):
+        print(f"[*-{RUN_TAG}] Deploying spell {i}/5 at {loc}...")
+        tap(*random_point(loc, 15))
+        human_delay(0.2, 0.4)
+        if maybe_handle_user_input(): raise RestartLoop
+    print(f"[*-{RUN_TAG}] All spells deployed!")
+    
+    print(f"[+{RUN_TAG}] All troops deployed.")
 
 # ========= CONTROL FLOW EXCEPTION =========
 class RestartLoop(Exception):
