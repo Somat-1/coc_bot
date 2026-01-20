@@ -49,16 +49,17 @@ def print_menu():
     print("\n📋 MAIN MENU")
     print("-" * 80)
     print("1️⃣  Track Current War (Full Analysis)")
-    print("2️⃣  View War History")
-    print("3️⃣  Generate All CSV Tables")
-    print("4️⃣  Generate War Summary Table Only")
-    print("5️⃣  Generate Per-War Member Table Only")
-    print("6️⃣  Generate Overall Member Table Only")
-    print("7️⃣  Generate All Excel Tables (XLSX)")
-    print("8️⃣  View Table Files Location")
-    print("9️⃣  Open Files in Finder")
-    print("🔟  Show Table Preview")
-    print("1️⃣1️⃣  View Statistics")
+    print("2️⃣  Auto-Monitor War (Continuous Updates) ⭐ NEW")
+    print("3️⃣  View War History")
+    print("4️⃣  Generate All CSV Tables")
+    print("5️⃣  Generate War Summary Table Only")
+    print("6️⃣  Generate Per-War Member Table Only")
+    print("7️⃣  Generate Overall Member Table Only")
+    print("8️⃣  Generate All Excel Tables (XLSX)")
+    print("9️⃣  View Table Files Location")
+    print("🔟  Open Files in Finder")
+    print("1️⃣1️⃣  Show Table Preview")
+    print("1️⃣2️⃣  View Statistics")
     print("0️⃣  Exit")
     print("-" * 80)
 
@@ -80,6 +81,34 @@ def track_current_war():
         choice = input("\n📊 Generate CSV tables now? (y/n): ").strip().lower()
         if choice == 'y':
             generate_all_tables()
+    
+    input("\n\nPress Enter to continue...")
+
+def auto_monitor_war():
+    """Start automated war monitoring."""
+    clear_screen()
+    print_header()
+    print("\n🤖 AUTOMATED WAR MONITORING")
+    print("=" * 80)
+    print("\nThis feature will:")
+    print("  • Check time until war end")
+    print("  • Start monitoring if < 3 hours remaining")
+    print("  • Update every 30 minutes (normal)")
+    print("  • Update every 2 minutes (last 10 minutes)")
+    print("  • Auto-save and generate tables when war ends")
+    print("\n⚠️  This will run until the war ends or you press Ctrl+C")
+    print("=" * 80)
+    
+    choice = input("\n🚀 Start automated monitoring? (y/n): ").strip().lower()
+    if choice == 'y':
+        try:
+            # Import and run the auto monitor
+            import subprocess
+            subprocess.run(['python3', 'auto_war_monitor.py'])
+        except KeyboardInterrupt:
+            print("\n\n⚠️  Monitoring stopped by user")
+        except Exception as e:
+            print(f"\n❌ Error: {e}")
     
     input("\n\nPress Enter to continue...")
 
@@ -348,29 +377,31 @@ def main():
         print_header()
         print_menu()
         
-        choice = input("\nSelect an option (0-11): ").strip()
+        choice = input("\nSelect an option (0-12): ").strip()
         
         if choice == '1':
             track_current_war()
         elif choice == '2':
-            view_war_history()
+            auto_monitor_war()
         elif choice == '3':
-            generate_tables_menu()
+            view_war_history()
         elif choice == '4':
-            generate_war_summary_menu()
+            generate_tables_menu()
         elif choice == '5':
-            generate_per_war_menu()
+            generate_war_summary_menu()
         elif choice == '6':
-            generate_overall_menu()
+            generate_per_war_menu()
         elif choice == '7':
-            generate_excel_tables_menu()
+            generate_overall_menu()
         elif choice == '8':
-            view_files_location()
+            generate_excel_tables_menu()
         elif choice == '9':
-            open_in_finder()
+            view_files_location()
         elif choice == '10':
-            show_table_preview()
+            open_in_finder()
         elif choice == '11':
+            show_table_preview()
+        elif choice == '12':
             view_statistics()
         elif choice == '0':
             clear_screen()
