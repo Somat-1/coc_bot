@@ -171,8 +171,8 @@ DEBUG_OUTPUT = "donation_debug.png"
 DONATE_OCR_BOX = (374, 817, 511, 865)
 DONATE_BOX_CENTER = ((374 + 511) // 2, (817 + 865) // 2)
 
-# Standby (keep-awake) tap rectangle (x1, y1, x2, y2) - shrunk by 5%
-STANDBY_RECT = (717, 311, 1383, 739)
+# Standby (keep-awake) tap rectangle (x1, y1, x2, y2) - shrunk by 10% total
+STANDBY_RECT = (734, 322, 1366, 728)
 
 # Troop donation centers: [Troop1, Troop2, Troop3, Troop4]
 TROOP_DONATE_CENTERS = [

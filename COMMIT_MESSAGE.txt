@@ -1,0 +1,95 @@
+feat: Complete War Tracking System with Excel Generation
+
+🎉 Major Update: Enhanced war tracking system with professional Excel reports
+
+## ✨ New Features
+
+### War Tracking System
+- ✅ Real-time war tracking via Clash of Clans API
+- ✅ Individual attack analysis (stars + destruction % per attack)
+- ✅ Copy-paste messages for missed attacks (≤240 chars, max 5 names)
+- ✅ Excel tables with professional formatting and color-coding
+- ✅ CSV tables for basic analysis
+- ✅ Automatic data storage with unique filenames
+- ✅ Performance warnings (yellow for 2 consecutive misses, red for 3+)
+- ✅ Unified menu system with 11 options
+
+### Excel Generation
+- Per-war performance tables (separate sheet per war)
+- Overall member statistics with color-coded warnings
+- Individual Attack 1 & Attack 2 tracking
+- Professional formatting with borders, headers, alignment
+- Auto-sized columns
+- Legend for color coding
+
+### Message Generation
+- Auto-split messages (max 5 names per message)
+- Character limit enforcement (≤240 chars)
+- Separate messages for NO ATTACKS vs PARTIAL ATTACKS
+- Ready-to-copy format for clan chat
+
+## 📁 Project Structure
+
+### Core Files
+- `war_tracking/war_tracker.py` - Unified menu system
+- `war_tracking/war_info.py` - Core tracking engine
+- `war_tracking/generate_excel_tables.py` - Excel generation (NEW)
+- `war_tracking/generate_tables.py` - CSV generation
+- `war_tracking/run.sh` - Quick launcher
+
+### Documentation (9 comprehensive guides)
+- README.md - Main documentation
+- START_HERE.md - Quick start
+- RUN_THIS.md - Complete usage guide
+- EXCEL_GUIDE.md - Excel features
+- INDIVIDUAL_ATTACKS_GUIDE.md - Attack tracking
+- COMPLETION_CHECKLIST.md - Project status
+- FINAL_SUMMARY.md - Project summary
+- QUICK_GUIDE.md - Quick reference
+- WHERE_IS_EVERYTHING.md - Navigation
+
+## 🧹 Cleanup
+
+### Removed Files
+- Duplicate documentation from root
+- Duplicate scripts (war_info.py, generate_tables.py)
+- Debug images (7 large PNG files)
+- Test scripts (test_*.py)
+- Outdated documentation from war_tracking/
+- click_logger.py, clicks.json (unused)
+- continuous_attack.py (unused)
+
+### Added Files
+- .gitignore (comprehensive)
+- CLEANUP_PLAN.md (cleanup documentation)
+- README.md (project overview)
+
+## �� System Status
+
+- Wars tracked: 1 (LøpeforbundetFC vs Gorkhali)
+- Members tracked: 25
+- Individual attacks recorded: 27
+- Excel files: 2 (per-war + overall)
+- CSV files: 3 (summary + per-war + overall)
+- Documentation files: 9
+
+## 🎯 All Requirements Met
+
+✅ Track member attack performance via CoC API
+✅ Generate copy-paste messages (≤240 chars, max 5 names)
+✅ Store war data with unique filenames
+✅ Create Excel tables with individual attack tracking
+✅ Color-code performance warnings (2+ consecutive misses)
+✅ Track both attacks separately (stars + destruction %)
+✅ Include opponent clan name in all tables
+
+## 🚀 Ready for Production
+
+All features implemented, tested, and documented.
+System is production-ready for daily war tracking.
+
+---
+
+Clan: LøpeforbundetFC (#2P0GPYYJY)
+Date: January 20, 2026
+Status: ✅ COMPLETE
